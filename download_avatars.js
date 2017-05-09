@@ -10,14 +10,40 @@ var options = {
   }
 };
 
-function callback(error, response, body) {
+function getRepo(repoOwner, repoName, cb) {
+
+  var options = {
+    url: 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors',
+    headers: {
+      'User-Agent': "GitHub Avatar Downloader - Student Project"
+    }
+  };
+
+  request(options, cb);
+}
+
+function getRepoContributors(error, response, body) {
   if (!error && response.statusCode == 200) {
     var info = JSON.parse(body);
-    console.log(info);
+    info.forEach(function (usr) {
+      console.log(usr.avatar_url);
+
+    });
   }
 }
 
-request(options, callback);
+function downloadImageByURL(url, filePath) {
+  if (fs.existsSync('./avatars/')) {
+    request.get(url)
+         .pipe(fs.createWriteStream(filePath));
+  }
+  else {
+    throw "The file directory [" + filePath + "] does not exist.";
+  }
+}
+
+getRepo('jquery', 'jquery', getRepoContributors);
+
 
 /*
 
